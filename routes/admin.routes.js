@@ -5,6 +5,6 @@ const router = express.Router();
 
 router.post("/", getAdmin);
 router.post("/create", craeteAdmin);
-router.post("/update/:id", updateAdmin);
+router.put("/update/:id", updateAdmin);
 
 export default router;
