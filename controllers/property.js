@@ -1,4 +1,5 @@
 import property from "../models/property.models.js";
+import jwt from "jsonwebtoken";
 // import upload from "../middlewares/upload.js";
 
 const getProperties = async (req, res) => {
@@ -58,7 +59,7 @@ const deleteProperties = async (req, res) => {
 
     const deleteProp = await property.findOneAndDelete({ _id: id });
 
-    if (!deleteTask) {
+    if (!deleteProp) {
       return res.status(404).send({ error: "Property not found" });
     }
 

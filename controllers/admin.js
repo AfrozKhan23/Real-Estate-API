@@ -1,5 +1,8 @@
 import admin from "../models/admin.models.js";
 import bcrypt from "bcryptjs";
+import jwt from "jsonwebtoken";
+
+const JWT_SECRET = "process.env.JWT_SECRET";
 
 const getAdmin = async (req, res) => {
   try {
@@ -14,16 +17,21 @@ const getAdmin = async (req, res) => {
     if (!isMatch) {
       return res.status(401).send({ error: "Invalid password" });
     }
-    res.status(200).send({ message: "Login successful" });
+
+    const token = jwt.sign({ id: user._id, email: user.email }, JWT_SECRET, {
+      expiresIn: "1h",
+    });
+
+    res.status(200).send({ message: "Login successful", token });
   } catch (error) {
     console.error("Error while logging in:", error);
     res.status(500).send({ error: "Internal Server Error" });
   }
 };
 
-const craeteAdmin = async (req, res) => {
+const createAdmin = async (req, res) => {
   try {
-    const { email, password } = req.body;
+    const { name, email, password } = req.body; // Ensure `name` is included in the request
     const hash = await bcrypt.hash(password, 10);
 
     const createUser = await admin.create({ name, email, password: hash });
@@ -41,7 +49,7 @@ const updateAdmin = async (req, res) => {
     const { id } = req.params;
     const { password } = req.body;
 
-    const hash = await bcrypt.hash(password, parseInt(10));
+    const hash = await bcrypt.hash(password, 10);
 
     const updateUser = await admin.findByIdAndUpdate(
       id,
@@ -55,7 +63,7 @@ const updateAdmin = async (req, res) => {
       return res.status(404).send({ error: "Admin not found" });
     }
 
-    console.log(" Admin updated successfully");
+    console.log("Admin updated successfully");
     res.send(updateUser);
   } catch (error) {
     console.error("Error while updating Admin:", error);
@@ -63,4 +71,4 @@ const updateAdmin = async (req, res) => {
   }
 };
 
-export { getAdmin, craeteAdmin, updateAdmin };
+export { getAdmin, createAdmin, updateAdmin };
