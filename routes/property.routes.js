@@ -1,17 +1,16 @@
 import express from "express";
-import {
-  getProperties,
-  getPropertyById,
-  createProperties,
-  deleteProperties,
-} from "../controllers/property.js";
 import { upload } from "../middlewares/imagesUpload.js";
+import {
+  getAllProperties,
+  getPropertyById,
+  createProperty,
+  deleteProperty,
+} from "../controllers/property.js";
 import authenticateJWT from "../middlewares/auth.js";
 
 const router = express.Router();
 
-router.get("/", getProperties);
-
+router.get("/", getAllProperties);
 router.get("/:id", getPropertyById);
 
 router.post(
@@ -21,9 +20,9 @@ router.post(
     { name: "photos", maxCount: 5 },
     { name: "videos", maxCount: 1 },
   ]),
-  createProperties
+  createProperty
 );
 
-router.delete("/delete/:id", authenticateJWT, deleteProperties);
+router.delete("/delete/:id", authenticateJWT, deleteProperty);
 
 export default router;

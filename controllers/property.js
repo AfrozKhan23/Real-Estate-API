@@ -1,8 +1,8 @@
 import property from "../models/property.models.js";
-import jwt from "jsonwebtoken";
-// import upload from "../middlewares/upload.js";
+import { uploadToCloudinary } from "../utils/cloudinary.js";
+import fs from "fs";
 
-const getProperties = async (req, res) => {
+const getAllProperties = async (req, res) => {
   try {
     const properties = await property.find();
     res.send(properties);
@@ -29,13 +29,26 @@ const getPropertyById = async (req, res) => {
   }
 };
 
-const createProperties = async (req, res) => {
+const createProperty = async (req, res) => {
   try {
     const { name, email, address, phone } = req.body;
     const { photos, videos } = req.files;
 
-    const photoPaths = photos?.map((photo) => photo.path);
-    const video = videos[0].path;
+    if (!photos || photos.length === 0) {
+      return res.status(400).send({ error: "At least one photo is required" });
+    }
+    if (!videos || videos.length === 0) {
+      return res.status(400).send({ error: "At least one video is required" });
+    }
+
+    const photoUploadPromises = photos.map((photo) =>
+      uploadToCloudinary(photo)
+    );
+    const photoResults = await Promise.all(photoUploadPromises);
+    const photoPaths = photoResults.map((result) => result.secure_url);
+
+    const videoResult = await uploadToCloudinary(videos[0], "video");
+    const videoUrl = videoResult.secure_url;
 
     const newProperty = await property.create({
       name,
@@ -43,7 +56,25 @@ const createProperties = async (req, res) => {
       address,
       phone,
       images: photoPaths,
-      videos: video,
+      videos: videoUrl,
+    });
+
+    photos.forEach((photo) => {
+      fs.unlink(photo.path, (err) => {
+        if (err) {
+          console.error("Error deleting photo:", err);
+        } else {
+          console.log("Photo deleted successfully:", photo.path);
+        }
+      });
+    });
+
+    fs.unlink(videos[0].path, (err) => {
+      if (err) {
+        console.error("Error deleting video:", err);
+      } else {
+        console.log("Video deleted successfully:", videos[0].path);
+      }
     });
 
     res.status(201).send(newProperty);
@@ -53,7 +84,7 @@ const createProperties = async (req, res) => {
   }
 };
 
-const deleteProperties = async (req, res) => {
+const deleteProperty = async (req, res) => {
   try {
     const { id } = req.params;
 
@@ -70,4 +101,4 @@ const deleteProperties = async (req, res) => {
   }
 };
 
-export { getProperties, getPropertyById, createProperties, deleteProperties };
+export { getAllProperties, getPropertyById, createProperty, deleteProperty };

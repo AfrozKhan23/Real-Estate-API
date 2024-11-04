@@ -17,14 +17,13 @@ const propertySchema = new mongoose.Schema({
     type: String,
     required: [true, "Address is required"],
   },
-  images: [
-    {
-      type: String,
-      required: [true, "Images are required"],
-    },
-  ],
+  images: {
+    type: [String],
+    required: [true, "Images are required"],
+  },
+
   videos: {
-    type: String,
+    type: [String],
     required: [true, "Videos are required"],
   },
 });

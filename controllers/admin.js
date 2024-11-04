@@ -19,7 +19,7 @@ const getAdmin = async (req, res) => {
     }
 
     const token = jwt.sign({ id: user._id, email: user.email }, JWT_SECRET, {
-      expiresIn: "1h",
+      expiresIn: "24h",
     });
 
     res.status(200).send({ message: "Login successful", token });
@@ -31,7 +31,7 @@ const getAdmin = async (req, res) => {
 
 const createAdmin = async (req, res) => {
   try {
-    const { name, email, password } = req.body; // Ensure `name` is included in the request
+    const { name, email, password } = req.body;
     const hash = await bcrypt.hash(password, 10);
 
     const createUser = await admin.create({ name, email, password: hash });
