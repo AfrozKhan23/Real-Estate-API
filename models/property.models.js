@@ -18,12 +18,12 @@ const propertySchema = new mongoose.Schema({
     required: [true, "Address is required"],
   },
   images: {
-    type: String,
+    type: [String],
     required: [true, "Images are required"],
   },
 
   videos: {
-    type: [String],
+    type: String,
     required: [true, "Videos are required"],
   },
 });
