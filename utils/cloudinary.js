@@ -12,6 +12,9 @@ export const uploadToCloudinary = async (file, resourceType = "auto") => {
   try {
     const uploadResult = await cloudinary.uploader.upload(file.path, {
       resource_type: resourceType,
+       transformation: [
+    { width: 500, height: 500, crop: "fill" }, // Resize image to 500x500
+  ],
     });
     return uploadResult;
   } catch (error) {
